@@ -1,0 +1,39 @@
+plugins {
+    id 'application'
+    id 'org.graalvm.buildtools.native' version '0.9.13'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.flywaydb:flyway-core:9.1.6'
+    implementation 'com.h2database:h2:2.1.214'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    runtimeOnly 'org.slf4j:slf4j-simple:1.7.36'
+}
+
+
+application {
+    mainClass = 'flywaynativeimage.Main'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+        vendor = JvmVendorSpec.GRAAL_VM
+    }
+}
+
+graalvmNative {
+    binaries {
+        main {
+            quickBuild = true
+        }
+    }
+    metadataRepository {
+        enabled = true
+        version = "0.1.1"
+    }
+}
