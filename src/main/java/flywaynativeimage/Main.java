@@ -1,34 +1,55 @@
 package flywaynativeimage;
 
+import java.nio.charset.StandardCharsets;
+
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
-
 class Main {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+	public static void main(String[] args) {
+		configureLogging(args);
+		new Run().run();
+	}
 
-    public static void main(String[] args) {
-        FluentConfiguration configuration = new FluentConfiguration()
-                .dataSource("jdbc:h2:mem:test", "user", "password")
-                .encoding(StandardCharsets.UTF_8)
-                .locations("classpath:db/migration");
+	private static void configureLogging(String[] args) {
+		boolean debug = false;
+		for (String arg : args) {
+			if (arg.equals("--debug")) {
+				debug = true;
+				break;
+			}
+		}
+		System.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
+		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", debug ? "debug" : "info");
+		LoggerFactory.getLogger(Main.class).debug("Debug log enabled");
+	}
 
-        if (isRunningInNativeImage()) {
-            configuration.resourceProvider(new GraalVMResourceProvider(configuration.getLocations()));
-        }
+	private static class Run {
+		private static final Logger LOGGER = LoggerFactory.getLogger(Run.class);
 
-        Flyway flyway = configuration.load();
-        MigrateResult result = flyway.migrate();
+		void run() {
+			FluentConfiguration configuration = new FluentConfiguration()
+					.dataSource("jdbc:h2:mem:test", "user", "password")
+					.encoding(StandardCharsets.UTF_8)
+					.locations("classpath:db/migration");
 
-        LOGGER.info("Migration successful: {}", result.success);
-        LOGGER.info("Executed migrations: {}", result.migrationsExecuted);
-    }
+			if (isRunningInNativeImage()) {
+				configuration.resourceProvider(new GraalVMResourceProvider(configuration.getLocations()));
+				configuration.javaMigrationClassProvider(new GraalVMClassProvider());
+			}
 
-    private static boolean isRunningInNativeImage() {
-        return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
-    }
+			Flyway flyway = configuration.load();
+			MigrateResult result = flyway.migrate();
+
+			LOGGER.info("Migration successful: {}", result.success);
+			LOGGER.info("Executed migrations: {}", result.migrationsExecuted);
+		}
+
+		private static boolean isRunningInNativeImage() {
+			return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
+		}
+	}
 }

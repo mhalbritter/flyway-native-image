@@ -1,0 +1,11 @@
+[
+  {
+    "name": "db.migration.V3__alter_table_again",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  }
+]

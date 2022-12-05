@@ -1,6 +1,6 @@
 plugins {
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.9.13'
+    id 'org.graalvm.buildtools.native' version '0.9.19'
 }
 
 repositories {
@@ -8,10 +8,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.flywaydb:flyway-core:9.1.6'
-    implementation 'com.h2database:h2:2.1.214'
-    implementation 'org.slf4j:slf4j-api:1.7.36'
-    runtimeOnly 'org.slf4j:slf4j-simple:1.7.36'
+	implementation 'org.flywaydb:flyway-core:9.1.6'
+	implementation 'com.h2database:h2:2.1.214'
+	implementation 'org.slf4j:slf4j-api:2.0.5'
+	runtimeOnly 'org.slf4j:slf4j-simple:2.0.5'
 }
 
 
@@ -27,13 +27,7 @@ java {
 }
 
 graalvmNative {
-    binaries {
-        main {
-            quickBuild = true
-        }
-    }
     metadataRepository {
         enabled = true
-        version = "0.1.1"
     }
 }
